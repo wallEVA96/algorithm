@@ -13,13 +13,14 @@
 #include "stdio.h"
 #include "stdlib.h"
 
+//define first
 struct treeNode;
 typedef struct treeNode *ptr_treeNode;
-typedef struct treeNode {
+struct treeNode {
 	int element;
 	ptr_treeNode left;
 	ptr_treeNode right;
-} *ptr_treeNode;
+};
 
 //struct node {
 //	int index;
