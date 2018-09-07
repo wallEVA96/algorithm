@@ -22,6 +22,36 @@
 
 #include "stdio.h"
 
+/* define */
+typedef int Vertex;
+struct vertex {
+	Vertex vertex;
+	Vertex cost;
+	struct list *next_vertex;
+};
+
+typedef struct vertex *adj_list;
+struct vertex_state{
+	adj_list list;
+	int known;
+	int dist;
+	Vertex path;
+};
+
+#define vertex_num 4
+#define INFINITY 10000
+#define FALSE 0
+#define NOPATH 0
+#define TRUE 1
+
+struct vertex_state vertex_array[vertex_num] = {NULL,
+												FALSE,
+												INFINITY,
+												NOPATH};
+
+/* dijstra */
+
+/*  main */
 int main(){
 
 
