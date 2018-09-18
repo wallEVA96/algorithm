@@ -1,0 +1,2 @@
+$ sudo apt-get install libncurses5-dev libncursesw5-dev
+$ wget http://labfile.oss.aliyuncs.com/courses/146/my_flappy_bird.c
