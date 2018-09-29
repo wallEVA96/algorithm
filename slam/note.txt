@@ -1,0 +1,35 @@
+note.txt
+
+:Author: walleva
+:Email: walleva@ubuntu
+:Date: 2018-09-27 00:00
+
+Past, Present, and Future of Simultaneous
+Localization and Mapping: Toward the
+Robust-Perception Age
+
+    ----front-end:
+	|	feature extraction 
+[]--|	feature tracking/loop closure / data association
+	|		^
+	|		|
+	----back-end:
+	   	MAP-estimation
+		EKF
+
+		back-end feedback info to front-end for verifying loop closure.
+		sensor-dependent SLAM front end,
+		front-end's preprocessing that happens in the front end is depend on
+		input data stream
+
+robust performance:
+	low failure
+high-level understanding:
+	
+task-driven perception:
+	the SLAM system is able to select relevant perceptual information and 
+	filter out irrelevant sensor data, in order to support the task, the robot has to perform
+
+when noise model is unknown: 
+	NO EKF!
+	But U can use M-estimate or adaptive estimator.
