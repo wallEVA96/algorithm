@@ -9,7 +9,7 @@
 using namespace std;
 
 // path to trajectory file
-string trajectory_file = "./trajectory.txt";
+string trajectory_file = "/home/walleva/algorithm/slam/PA4_code/trajectory/trajectory.txt";
 
 // function for plotting trajectory, don't edit this code
 // start point is red and end point is blue
@@ -21,9 +21,27 @@ int main(int argc, char **argv) {
 
     /// implement pose reading code
     // start your code here (5~10 lines)
-
+	cout << "-- Visual SLAM 4 Chapter " << endl;
     // end your code here
+	string input_data,line_data;
+	float time;
+	Eigen::Vector3d t;
+	Eigen::Quaterniond q;
+	Sophus::SE3 SE3_tf;
+	ifstream if_trajectory(trajectory_file.c_str());
 
+	if( !if_trajectory.is_open() ){
+		cout << "-- trajectory.txt not found" << endl;
+		return -1;
+	}
+	while( getline(if_trajectory, line_data) ){
+		istringstream iss(line_data);
+		iss >> time >> t[0] >> t[1] >> t[2] >> q.x() >> q.y() >> q.z() >> q.w();
+		SE3_tf = Sophus::SE3(q,t);
+		poses.push_back(SE3_tf);
+	}
+	if( if_trajectory.is_open() )
+		if_trajectory.close();
     // draw trajectory in pangolin
     DrawTrajectory(poses);
     return 0;
