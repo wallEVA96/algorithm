@@ -1,0 +1,3 @@
+/home/walleva/algorithm/slam/PA4_code/trajectory/build/CMakeFiles/edit_cache.dir
+/home/walleva/algorithm/slam/PA4_code/trajectory/build/CMakeFiles/rebuild_cache.dir
+/home/walleva/algorithm/slam/PA4_code/trajectory/build/CMakeFiles/draw_trajectory.dir

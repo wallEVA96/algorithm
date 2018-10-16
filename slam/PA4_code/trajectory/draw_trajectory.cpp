@@ -21,7 +21,6 @@ int main(int argc, char **argv) {
 
     /// implement pose reading code
     // start your code here (5~10 lines)
-	fp = fopen(trajectory_file);
 
     // end your code here
 
