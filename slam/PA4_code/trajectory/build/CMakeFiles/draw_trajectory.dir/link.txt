@@ -1,1 +1,1 @@
-/usr/bin/c++    -std=c++11   CMakeFiles/draw_trajectory.dir/draw_trajectory.cpp.o  -o draw_trajectory -rdynamic 
+/usr/bin/c++    -std=c++11    CMakeFiles/draw_trajectory.dir/draw_trajectory.cpp.o  -o draw_trajectory -rdynamic /usr/local/lib/libpangolin.so /home/exbot/Sophus/build/libSophus.so -lGLU -lGL -lSM -lICE -lX11 -lXext -lGLEW -lSM -lICE -lX11 -lXext -lGLEW -lrt -lpthread -ldc1394 -lavcodec -lavformat -lavutil -lswscale /opt/ros/indigo/lib/librealsense.so -lpng -lz -ljpeg -ltiff -lIlmImf -Wl,-rpath,/home/exbot/Sophus/build:/usr/local/lib:/opt/ros/indigo/lib 
