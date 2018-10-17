@@ -6,6 +6,7 @@
 
 #IncludeRegexTransform: 
 
+<<<<<<< HEAD
 /home/walleva/algorithm/slam/PA4_code/trajectory/draw_trajectory.cpp
 sophus/se3.h
 -
@@ -1696,3 +1697,5 @@ pangolin/video/stream_info.h
 pangolin/utils/picojson.h
 -
 
+=======
+>>>>>>> 001405bfad26dfd1432fb40ff7bb793365245056
