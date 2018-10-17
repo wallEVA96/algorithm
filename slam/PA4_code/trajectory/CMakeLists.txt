@@ -23,23 +23,13 @@ else()
 endif()
 
 
-<<<<<<< HEAD
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules/)
 
-find_package(Sophus REQUIRED)
-find_package(Eigen3 3.1.0 REQUIRED)
-find_package(Pangolin REQUIRED)
-
-include_directories(
-=======
-LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 find_package(Eigen3 3.1.0 REQUIRED)
 find_package(Pangolin REQUIRED)
 find_package(Sophus REQUIRED)
 
 include_directories(
-${PROJECT_SOURCE_DIR}
->>>>>>> 001405bfad26dfd1432fb40ff7bb793365245056
 ${Sophus_INCLUDE_DIRS}
 ${EIGEN3_INCLUDE_DIR}
 ${Pangolin_INCLUDE_DIRS}
@@ -47,8 +37,3 @@ ${Pangolin_INCLUDE_DIRS}
 
 add_executable(${PROJECT_NAME} ${PROJECT_NAME}.cpp)
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS} ${EIGEN3_LIBS} ${Pangolin_LIBRARIES} ${Sophus_LIBRARIES})
-<<<<<<< HEAD
-=======
-MESSAGE(STATUS "------------${Pangolin_LIBRARIES}--------")
-MESSAGE(STATUS "------------${OpenCV_LIBS}--------")
->>>>>>> 001405bfad26dfd1432fb40ff7bb793365245056
