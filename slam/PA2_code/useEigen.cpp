@@ -16,10 +16,16 @@ int main(char argc, char **argv){
 	/* matrxi3d is doule 3,3 */
 	Eigen::Matrix3d matrix_33 = Eigen::Matrix3d::Zero();
 	Eigen::Matrix< double,Eigen::Dynamic,Eigen::Dynamic> matrix_dynamic;
+	/* 特殊类型 */
 	Eigen::MatrixXd matrix_x;
 	
-	matrix_23 << 1,1,2,2,5,3;
+	matrix_23 << 1,1,2,2,5,5;
 	cout << matrix_23 <<endl;
+	cout << matrix_23.cols() << endl;
+
+	for (int i = 0; i < matrix_23.rows(); i++)
+		for(int j = 0;j < matrix_23.cols(); j++)
+				cout << matrix_23(i,j) << " ";
 	
 return 0;
 }
