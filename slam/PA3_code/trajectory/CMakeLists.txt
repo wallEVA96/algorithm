@@ -37,3 +37,7 @@ ${Pangolin_INCLUDE_DIRS}
 
 add_executable(${PROJECT_NAME} ${PROJECT_NAME}.cpp)
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS} ${EIGEN3_LIBS} ${Pangolin_LIBRARIES} ${Sophus_LIBRARIES})
+
+### Add RMSE Cpp
+add_executable(rmse_trajectory rmse_trajectory.cpp)
+target_link_libraries(rmse_trajectory ${OpenCV_LIBS} ${EIGEN3_LIBS} ${Pangolin_LIBRARIES} ${Sophus_LIBRARIES})
