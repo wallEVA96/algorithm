@@ -28,8 +28,16 @@ int main(int argc, char **argv) {
             double u_distorted = 0, v_distorted = 0;
             // TODO 按照公式，计算点(u,v)对应到畸变图像中的坐标(u_distorted, v_distorted) (~6 lines)
             // start your code here
-            
-            // end your code here
+			u_distorted = (u-cx)/fx;
+			v_distorted = (v-cy)/fy;
+			double r2 = u_distorted*u_distorted+v_distorted*v_distorted;
+			u_distorted = u_distorted*(1+k1*r2+k2*r2*r2)+2*p1*u_distorted*v_distorted+p2*(r2+2*u_distorted*u_distorted);
+			//u_distorted = u_distorted*(1+k1*r2+k2*r2*r2);
+			v_distorted = v_distorted*(1+k1*r2+k2*r2*r2)+2*p2*u_distorted*v_distorted+p1*(r2+2*v_distorted*v_distorted);
+			//v_distorted = v_distorted*(1+k1*r2+k2*r2*r2);
+			u_distorted = u_distorted*fx+cx;
+			v_distorted = v_distorted*fy+cy;
+			// end your code here
 
             // 赋值 (最近邻插值)
             if (u_distorted >= 0 && v_distorted >= 0 && u_distorted < cols && v_distorted < rows) {
@@ -40,6 +48,7 @@ int main(int argc, char **argv) {
         }
 
     // 画图去畸变后图像
+    cv::imshow("image original", image);
     cv::imshow("image undistorted", image_undistort);
     cv::waitKey();
 

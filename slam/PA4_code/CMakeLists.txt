@@ -14,3 +14,4 @@ include_directories(
 
 add_executable(undistort_image undistort_image.cpp)
 target_link_libraries(undistort_image ${OpenCV_LIBS})
+add_executable(distortion_fun distortion_fun.cpp)
