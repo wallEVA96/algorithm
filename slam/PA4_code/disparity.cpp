@@ -26,11 +26,17 @@ int main(int argc, char **argv) {
     // 间距
     double d = 0.573;
 
+	if(argc == 1){
+		cout << "input path pl" << endl;
+		return 0;
+	}
+	disparity_file = argv[1];
     // 读取图像
     cv::Mat left = cv::imread(left_file, 0);
     cv::Mat right = cv::imread(right_file, 0);
     cv::Mat disparity = cv::imread(disparity_file, 0); // disparty 为CV_8U,单位为像素
-
+	
+	cout <<  (int)disparity.at<uchar>(0, 0) << endl;
     // 生成点云
     vector<Vector4d, Eigen::aligned_allocator<Vector4d>> pointcloud;
 

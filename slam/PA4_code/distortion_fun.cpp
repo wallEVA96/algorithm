@@ -19,7 +19,7 @@
  */
 
 using namespace std;
-string data_path = "/home/walleva/algorithm/slam/PA4_code/gnuplot.txt";
+string data_path = "/home/exbot/algorithm/slam/PA4_code/gnuplot.txt";
 
 int main(int argc, char **argv){
 	ofstream of_data(data_path.c_str());

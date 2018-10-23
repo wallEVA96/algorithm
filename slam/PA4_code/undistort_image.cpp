@@ -7,7 +7,7 @@
 
 using namespace std;
 
-string image_file = "/home/walleva/algorithm/slam/PA4_code/test.png";   // 请确保路径正确
+string image_file = "/home/exbot/algorithm/slam/PA4_code/test.png";   // 请确保路径正确
 
 int main(int argc, char **argv) {
 
