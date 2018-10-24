@@ -12,9 +12,9 @@ using namespace std;
 using namespace Eigen;
 
 // 文件路径，如果不对，请调整
-string left_file = "./left.png";
-string right_file = "./right.png";
-string disparity_file = "./disparity.png";
+string left_file = "/home/exbot/algorithm/slam/PA4_code/left.png";
+string right_file = "/home/exbot/algorithm/slam/PA4_code/right.png";
+string disparity_file = "/home/exbot/algorithm/slam/PA4_code/disparity.png";
 
 // 在panglin中画图，已写好，无需调整
 void showPointCloud(const vector<Vector4d, Eigen::aligned_allocator<Vector4d>> &pointcloud);
@@ -26,20 +26,18 @@ int main(int argc, char **argv) {
     // 间距
     double d = 0.573;
 
-	if(argc == 1){
-		cout << "input path pl" << endl;
-		return 0;
-	}
-	disparity_file = argv[1];
     // 读取图像
     cv::Mat left = cv::imread(left_file, 0);
     cv::Mat right = cv::imread(right_file, 0);
-    cv::Mat disparity = cv::imread(disparity_file, 0); // disparty 为CV_8U,单位为像素
+    cv::Mat disparity = cv::imread(disparity_file, 0); // disparity 为CV_8U,单位为像素
 	
-	cout <<  (int)disparity.at<uchar>(0, 0) << endl;
+	cout <<  disparity.rows << " "<< disparity.cols << endl;
+	cout <<  left.rows << " "<< left.cols << endl;
+	cout <<  right.rows << " "<< right.cols << endl;
     // 生成点云
     vector<Vector4d, Eigen::aligned_allocator<Vector4d>> pointcloud;
 
+	cout << (int)left.at<uchar>(0,0)<< endl;
     // TODO 根据双目模型计算点云
     // 如果你的机器慢，请把后面的v++和u++改成v+=2, u+=2
     for (int v = 0; v < left.rows; v++)
@@ -49,6 +47,11 @@ int main(int argc, char **argv) {
 
             // start your code here (~6 lines)
             // 根据双目模型计算 point 的位置
+			double Z = fx*d/disparity.at<uchar>(v,u);
+			double X = (u-cx)/fx*Z;
+			double Y = (v-cy)/fy*Z;
+			point << X, Y, Z, left.at<uchar>(v,u)/255.0;
+			pointcloud.push_back(point);
             // end your code here
         }
 
