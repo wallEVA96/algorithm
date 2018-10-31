@@ -37,11 +37,11 @@ int main(int argc, char **argv) {
             double xi = x_data[i], yi = y_data[i];  // 第i个数据点
             // start your code here
             double error = 0;   // 第i个数据点的计算误差
-            error = 0; // 填写计算error的表达式
+            error = yi - exp(ae * xi * xi + be * xi + ce); // 填写计算error的表达式
             Vector3d J; // 雅可比矩阵
-            J[0] = 0;  // de/da
-            J[1] = 0;  // de/db
-            J[2] = 0;  // de/dc
+            J[0] = -xi * xi * exp(ae * xi * xi + be * xi + ce);  // de/da
+            J[1] = -xi * exp(ae * xi * xi + be * xi + ce);  // de/db
+            J[2] = -exp(ae * xi * xi + be * xi + ce);  // de/dc
 
             H += J * J.transpose(); // GN近似的H
             b += -error * J;
@@ -53,9 +53,10 @@ int main(int argc, char **argv) {
         // 求解线性方程 Hx=b，建议用ldlt
  	// start your code here
         Vector3d dx;
+		dx = H.ldlt().solve(b);
 	// end your code here
 
-        if (isnan(dx[0])) {
+        if (std::isnan(dx[0])) {
             cout << "result is nan!" << endl;
             break;
         }
