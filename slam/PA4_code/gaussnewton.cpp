@@ -11,7 +11,8 @@ using namespace Eigen;
 
 int main(int argc, char **argv) {
     double ar = 1.0, br = 2.0, cr = 1.0;         // 真实参数值
-    double ae = 2.0, be = -1.0, ce = 5.0;        // 估计参数值
+    //double ae = 2.0, be = -1.0, ce = 5.0;        // 估计参数值
+    double ae = 1.0, be = 3.0, ce = 5.0;        // 估计参数值
     int N = 100;                                 // 数据点
     double w_sigma = 1.0;                        // 噪声Sigma值
     cv::RNG rng;                                 // OpenCV随机数产生器
@@ -24,7 +25,7 @@ int main(int argc, char **argv) {
     }
 
     // 开始Gauss-Newton迭代
-    int iterations = 100;    // 迭代次数
+    int iterations = 1000;    // 迭代次数
     double cost = 0, lastCost = 0;  // 本次迭代的cost和上一次迭代的cost
 
     for (int iter = 0; iter < iterations; iter++) {
@@ -43,6 +44,7 @@ int main(int argc, char **argv) {
             J[1] = -xi * exp(ae * xi * xi + be * xi + ce);  // de/db
             J[2] = -exp(ae * xi * xi + be * xi + ce);  // de/dc
 
+	//jocobian矩阵 在只有一个 y的 是 一个 1* 3的矩阵，就跟本实验一样，所以注意 H公式的计算的时候， 行列不要颠倒。
             H += J * J.transpose(); // GN近似的H
             b += -error * J;
             // end your code here
@@ -50,9 +52,17 @@ int main(int argc, char **argv) {
             cost += error * error;
         }
 
-        // 求解线性方程 Hx=b，建议用ldlt
+    // 求解线性方程 Hx=b，建议用ldlt
  	// start your code here
-        Vector3d dx;
+	// 原本认为是 下一个点和上一个点进行迭代，但是其实应该是 下一次 所有的点和上一次所有的数据进行迭代。
+	// 这样才能利用到最小二乘即最小平方差的判断依据呀。
+    // 个人认为很有可能是 单个数据点存在随机性，所以利用总体的数据样本进行 多次迭代逼近最小方差。
+	// 但是计算 hessian矩阵和 b矩阵的时候，为何不除以N?
+	// 因为 Hdx = b,二者呈线性关系.
+	// LM算法可以细化步长。
+		Vector3d dx;
+		H /= N;
+		b /= N; 
 		dx = H.ldlt().solve(b);
 	// end your code here
 
