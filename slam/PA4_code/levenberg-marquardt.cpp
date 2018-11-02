@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
             break;
         }
 
-        if (iter > 0 && (cost-lastCost) < 0.000001) {
+        if (iter > 0 && cost > lastCost) {
             // 误差增长了，说明近似的不够好
             cout << "cost: " << cost << ", last cost: " << lastCost << endl;
             break;
