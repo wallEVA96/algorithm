@@ -10,8 +10,8 @@
 using namespace std;
 
 // global variables
-string first_file = "./1.png";
-string second_file = "./2.png";
+string first_file = "../1.png";
+string second_file = "../2.png";
 
 const double pi = 3.1415926;    // pi
 
@@ -50,8 +50,8 @@ int main(int argc, char **argv) {
     cv::Mat second_image = cv::imread(second_file, 0);  // load grayscale image
 
     // plot the image
-    cv::imshow("first image", first_image);
-    cv::imshow("second image", second_image);
+   // cv::imshow("first image", first_image);
+   // cv::imshow("second image", second_image);
     cv::waitKey(0);
 
     // detect FAST keypoints using threshold=40
@@ -60,7 +60,9 @@ int main(int argc, char **argv) {
     cout << "keypoints: " << keypoints.size() << endl;
 
     // compute angle for each keypoint
+	cout << "-------------" << endl;
     computeAngle(first_image, keypoints);
+	cout << "-------------" << endl;
 
     // compute ORB descriptors
     vector<DescType> descriptors;
@@ -108,9 +110,26 @@ int main(int argc, char **argv) {
 void computeAngle(const cv::Mat &image, vector<cv::KeyPoint> &keypoints) {
     int half_patch_size = 8;
     for (auto &kp : keypoints) {
-	// START YOUR CODE HERE (~7 lines)
-        kp.angle = 0; // compute kp.angle 
-        // END YOUR CODE HERE
+	// START YOUR CODE HERE (~7 lines) 
+		auto v_sta = kp.pt.x - 8, v_end = kp.pt.x + 8;
+		auto u_sta = kp.pt.y - 7, u_end = kp.pt.y + 7;
+		float m_01 = 0, m_10 = 0;
+		cout << "---------117 ----" << endl;
+		if(v_sta < 0 || v_end > image.cols || u_sta < 0 || u_end > image.rows)
+			continue;
+		cout << "120" << endl;
+		cout << u_sta << "  " << v_sta << endl;
+		for(int i = u_sta; i <= u_end; i++ )
+			for(int j = v_sta; i<= v_end; j++){
+				m_10 += j*image.at<uchar>(i, j);
+				m_01 += i*image.at<uchar>(i, j);
+			}
+					
+		//kp.angle = std::atan2(m_10, m_01); // compute kp.angle
+       	cout << std::atan2(-1.0, 1.0)*180/3.1415926 << endl;
+		cout << std::atan2(m_10, m_01)*180/3.1415926 << endl; // compute kp.angle
+		exit(0);
+		// END YOUR CODE HERE
     }
     return;
 }
