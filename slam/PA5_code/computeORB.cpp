@@ -114,6 +114,7 @@ void computeAngle(const cv::Mat &image, vector<cv::KeyPoint> &keypoints) {
     for (auto &kp : keypoints) {
 	// START YOUR CODE HERE (~7 lines)
 #define PI 3.14159265358979
+		/*
 		auto u_sta = kp.pt.x - 8, u_end = kp.pt.x + 7;
 		auto v_sta = kp.pt.y - 8, v_end = kp.pt.y + 7;
 		float m_01 = 0, m_10 = 0, m_00 = 0;
@@ -125,12 +126,14 @@ void computeAngle(const cv::Mat &image, vector<cv::KeyPoint> &keypoints) {
 				m_01 += i * image.at<uchar>(i, j);
 				m_00 += image.at<uchar>(i,j);
 			}
-		/*易错的地方在于 要将 关键点为原点才可以直接角度  */
-		/*如果将图像的初始点 作为原点，则会出现旋转角全是正值。*/
+		// 易错的地方在于 要将 关键点为原点才可以直接角度
+		// 如果将图像的初始点 作为原点，则会出现旋转角全是正值
+		// 带入不同的x和y，求出的坐标的坐标系也是不同的，本实验求的是图片坐标系。
 		cout << "Y:" << m_01/m_00 << " X:" << m_10/m_00 << endl;
-		kp.angle = std::atan2(m_01/m_00-kp.pt.y, m_10/m_00-kp.pt.x)*180/PI;  // compute kp.angle
+		kp.angle = std::atan2(m_01/m_00-kp.pt.y, m_10/m_00-kp.pt.x)*180/PI;  
 		cout << "KP Angle:" << kp.angle << endl;
-		cout << "Angle: 10/01  " << std::atan2(m_10, m_01)*180/PI<< endl; // compute kp.angle
+		cout << "Angle: 10/01  " << std::atan2(m_10, m_01)*180/PI<< endl; 
+		*/
 		// END YOUR CODE HERE
     }
     return;
