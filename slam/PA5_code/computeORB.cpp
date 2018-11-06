@@ -61,9 +61,7 @@ int main(int argc, char **argv) {
     cout << "keypoints: " << keypoints.size() << endl;
 
     // compute angle for each keypoint
-	cout << "-------------" << endl;
     computeAngle(first_image, keypoints);
-	cout << "-------------" << endl;
 
     // compute ORB descriptors
     vector<DescType> descriptors;
@@ -114,6 +112,20 @@ void computeAngle(const cv::Mat &image, vector<cv::KeyPoint> &keypoints) {
     for (auto &kp : keypoints) {
 	// START YOUR CODE HERE (~7 lines)
 #define PI 3.14159265358979
+		auto u_sta = kp.pt.x - 8, u_end = kp.pt.x + 7;
+		auto v_sta = kp.pt.y - 8, v_end = kp.pt.y + 7;
+		double m_01 = 0, m_10 = 0;
+		if(v_sta < 0 || v_end >= image.rows || u_sta < 0 || u_end >= image.cols)
+			continue;
+		for(int i = -8; i < 8; i++)
+			for(int j = -8; j < 8; j++){
+				m_10 += j*image.at<uchar>(kp.pt.y+i, kp.pt.x+j);
+				m_01 += i*image.at<uchar>(kp.pt.y+i, kp.pt.x+j);
+			}
+		cout << m_01 << endl;
+		cout << m_10 << endl;
+		kp.angle = std::atan2(m_01, m_10)*180/PI;
+		cout << "kp.angle:" << kp.angle << endl;
 		/*
 		auto u_sta = kp.pt.x - 8, u_end = kp.pt.x + 7;
 		auto v_sta = kp.pt.y - 8, v_end = kp.pt.y + 7;
@@ -134,6 +146,7 @@ void computeAngle(const cv::Mat &image, vector<cv::KeyPoint> &keypoints) {
 		cout << "KP Angle:" << kp.angle << endl;
 		cout << "Angle: 10/01  " << std::atan2(m_10, m_01)*180/PI<< endl; 
 		*/
+		
 		// END YOUR CODE HERE
     }
     return;
