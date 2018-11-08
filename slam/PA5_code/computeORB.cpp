@@ -74,7 +74,6 @@ int main(int argc, char **argv) {
     cv::imshow("features", image_show);
     cv::imwrite("feat1.png", image_show);
     cv::waitKey(0);
-	exit(0);
 
     // we can also match descriptors between images
     // same for the second
@@ -112,6 +111,7 @@ void computeAngle(const cv::Mat &image, vector<cv::KeyPoint> &keypoints) {
     for (auto &kp : keypoints) {
 	// START YOUR CODE HERE (~7 lines)
 #define PI 3.14159265358979
+		///  method 2,
 		auto u_sta = kp.pt.x - 8, u_end = kp.pt.x + 7;
 		auto v_sta = kp.pt.y - 8, v_end = kp.pt.y + 7;
 		double m_01 = 0, m_10 = 0;
@@ -122,30 +122,40 @@ void computeAngle(const cv::Mat &image, vector<cv::KeyPoint> &keypoints) {
 				m_10 += j*image.at<uchar>(kp.pt.y+i, kp.pt.x+j);
 				m_01 += i*image.at<uchar>(kp.pt.y+i, kp.pt.x+j);
 			}
-		cout << m_01 << endl;
-		cout << m_10 << endl;
 		kp.angle = std::atan2(m_01, m_10)*180/PI;
 		cout << "kp.angle:" << kp.angle << endl;
-		/*
-		auto u_sta = kp.pt.x - 8, u_end = kp.pt.x + 7;
-		auto v_sta = kp.pt.y - 8, v_end = kp.pt.y + 7;
-		float m_01 = 0, m_10 = 0, m_00 = 0;
-		if(v_sta < 0 || v_end >= image.rows || u_sta < 0 || u_end >= image.cols)
-			continue;
-		for(int i = v_sta; i <= v_end; i++ )
-			for(int j = u_sta; j <= u_end; j++){
-				m_10 += j * image.at<uchar>(i, j);
-				m_01 += i * image.at<uchar>(i, j);
-				m_00 += image.at<uchar>(i,j);
-			}
-		// 易错的地方在于 要将 关键点为原点才可以直接角度
-		// 如果将图像的初始点 作为原点，则会出现旋转角全是正值
-		// 带入不同的x和y，求出的坐标的坐标系也是不同的，本实验求的是图片坐标系。
-		cout << "Y:" << m_01/m_00 << " X:" << m_10/m_00 << endl;
-		kp.angle = std::atan2(m_01/m_00-kp.pt.y, m_10/m_00-kp.pt.x)*180/PI;  
-		cout << "KP Angle:" << kp.angle << endl;
-		cout << "Angle: 10/01  " << std::atan2(m_10, m_01)*180/PI<< endl; 
-		*/
+		///  method 3,
+//		const uchar* center = &image.at<uchar> (cvRound(pt.y), cvRound(pt.x)); // Treat the center line differently, v=0 
+//		for (int u = -HALF_PATCH_SIZE; u <= HALF_PATCH_SIZE; ++u) 
+//			m_10 += u * center[u];
+//		for (int v = 1; v <= HALF_PATCH_SIZE; ++v) { // Proceed over the two lines // 每次处理对称的两行 
+//			int v_sum = 0; int d = u_max[v]; 
+//			for (int u = -d; u <= d; ++u) { 
+//			int val_plus = center[u + v*step], val_minus = center[u - v*step]; 
+//			v_sum += (val_plus - val_minus); //因为val_minus对应的是-v,为了统一符号，用减法 
+//			m_10 += u * (val_plus + val_minus); 
+//			} 
+//			m_01 += v * v_sum; 
+//		}
+		///  method 1,
+//		auto u_sta = kp.pt.x - 8, u_end = kp.pt.x + 7;
+//		auto v_sta = kp.pt.y - 8, v_end = kp.pt.y + 7;
+//		float m_01 = 0, m_10 = 0, m_00 = 0;
+//		if(v_sta < 0 || v_end >= image.rows || u_sta < 0 || u_end >= image.cols)
+//			continue;
+//		for(int i = v_sta; i <= v_end; i++ )
+//			for(int j = u_sta; j <= u_end; j++){
+//				m_10 += j * image.at<uchar>(i, j);
+//				m_01 += i * image.at<uchar>(i, j);
+//				m_00 += image.at<uchar>(i,j);
+//			}
+//		// 易错的地方在于 要将 关键点为原点才可以直接角度
+//		// 如果将图像的初始点 作为原点，则会出现旋转角全是正值
+//		// 带入不同的x和y，求出的坐标的坐标系也是不同的，本实验求的是图片坐标系。
+//		cout << "Y:" << m_01/m_00 << " X:" << m_10/m_00 << endl;
+//		kp.angle = std::atan2(m_01/m_00-kp.pt.y, m_10/m_00-kp.pt.x)*180/PI;  
+//		cout << "KP Angle:" << kp.angle << endl;
+//		cout << "Angle: 10/01  " << std::atan2(m_10, m_01)*180/PI<< endl; 
 		
 		// END YOUR CODE HERE
     }
@@ -417,9 +427,21 @@ int ORB_pattern[256 * 4] = {
 void computeORBDesc(const cv::Mat &image, vector<cv::KeyPoint> &keypoints, vector<DescType> &desc) {
     for (auto &kp: keypoints) {
         DescType d(256, false);
+		float rad_angle = kp.angle/180*PI;
         for (int i = 0; i < 256; i++) {
-            // START YOUR CODE HERE (~7 lines)
-            d[i] = 0;  // if kp goes outside, set d.clear()
+        // START YOUR CODE HERE (~7 lines)
+			int u_p = kp.pt.x+cvRound(ORB_pattern[i*4]*cos(rad_angle)-ORB_pattern[i*4+1]*sin(rad_angle));
+			int v_p = kp.pt.y+cvRound(ORB_pattern[i*4]*sin(rad_angle)+ORB_pattern[i*4+1]*cos(rad_angle));
+			int u_q = kp.pt.x+cvRound(ORB_pattern[i*4+2]*cos(rad_angle)-ORB_pattern[i*4+3]*sin(rad_angle));
+			int v_q = kp.pt.y+cvRound(ORB_pattern[i*4+2]*sin(rad_angle)+ORB_pattern[i*4+3]*cos(rad_angle));
+	
+			if(u_p >= image.cols || u_p < 0 || u_q >= image.cols || u_q < 0 \
+			|| v_p >= image.rows || v_p < 0 || v_q >= image.rows || v_q < 0){
+				d[i] = 0;  // if kp goes outside, set d.clear()
+				continue;
+			}
+			if(image.at<uchar>(u_p, v_p) > image.at<uchar>(u_q,v_q))
+				d[i] = 1;
 	    // END YOUR CODE HERE
         }
         desc.push_back(d);
