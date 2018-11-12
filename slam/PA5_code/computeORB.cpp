@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
     // detect FAST keypoints using threshold=40
     vector<cv::KeyPoint> keypoints;
     cv::FAST(first_image, keypoints, 40);
-    cout << "keypoints: " << keypoints.size() << endl;
+    cout << "1st keypoints: " << keypoints.size() << endl;
 
     // compute angle for each keypoint
     computeAngle(first_image, keypoints);
@@ -73,13 +73,13 @@ int main(int argc, char **argv) {
                       cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
     cv::imshow("features", image_show);
     cv::imwrite("feat1.png", image_show);
-    cv::waitKey(0);
+	cv::waitKey(0);
 
     // we can also match descriptors between images
     // same for the second
     vector<cv::KeyPoint> keypoints2;
     cv::FAST(second_image, keypoints2, 40);
-    cout << "keypoints: " << keypoints2.size() << endl;
+    cout << "2nd keypoints: " << keypoints2.size() << endl;
 
     // compute angle for each keypoint
     computeAngle(second_image, keypoints2);
@@ -87,6 +87,14 @@ int main(int argc, char **argv) {
     // compute ORB descriptors
     vector<DescType> descriptors2;
     computeORBDesc(second_image, keypoints2, descriptors2);
+	
+	// plot the keypoints
+    cv::Mat image_show2;
+    cv::drawKeypoints(second_image, keypoints2, image_show2, cv::Scalar::all(-1),
+                      cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+    cv::imshow("features2", image_show2);
+    cv::imwrite("feat2.png", image_show2);
+	cv::waitKey(0);
 
     // find matches
     vector<cv::DMatch> matches;
@@ -123,7 +131,7 @@ void computeAngle(const cv::Mat &image, vector<cv::KeyPoint> &keypoints) {
 				m_01 += i*image.at<uchar>(kp.pt.y+i, kp.pt.x+j);
 			}
 		kp.angle = std::atan2(m_01, m_10)*180/PI;
-		cout << "kp.angle:" << kp.angle << endl;
+	//	cout << "kp.angle:" << kp.angle << endl;
 		///  method 3,
 //		const uchar* center = &image.at<uchar> (cvRound(pt.y), cvRound(pt.x)); // Treat the center line differently, v=0 
 //		for (int u = -HALF_PATCH_SIZE; u <= HALF_PATCH_SIZE; ++u) 
@@ -428,19 +436,20 @@ void computeORBDesc(const cv::Mat &image, vector<cv::KeyPoint> &keypoints, vecto
     for (auto &kp: keypoints) {
         DescType d(256, false);
 		float rad_angle = kp.angle/180*PI;
+		float fcos = cos(rad_angle), fsin = sin(rad_angle);
         for (int i = 0; i < 256; i++) {
         // START YOUR CODE HERE (~7 lines)
-			int u_p = kp.pt.x+cvRound(ORB_pattern[i*4]*cos(rad_angle)-ORB_pattern[i*4+1]*sin(rad_angle));
-			int v_p = kp.pt.y+cvRound(ORB_pattern[i*4]*sin(rad_angle)+ORB_pattern[i*4+1]*cos(rad_angle));
-			int u_q = kp.pt.x+cvRound(ORB_pattern[i*4+2]*cos(rad_angle)-ORB_pattern[i*4+3]*sin(rad_angle));
-			int v_q = kp.pt.y+cvRound(ORB_pattern[i*4+2]*sin(rad_angle)+ORB_pattern[i*4+3]*cos(rad_angle));
+			int u_p = kp.pt.x+cvRound(ORB_pattern[i*4]*fcos-ORB_pattern[i*4+1]*fsin);
+			int v_p = kp.pt.y+cvRound(ORB_pattern[i*4]*fsin+ORB_pattern[i*4+1]*fcos);
+			int u_q = kp.pt.x+cvRound(ORB_pattern[i*4+2]*fcos-ORB_pattern[i*4+3]*fsin);
+			int v_q = kp.pt.y+cvRound(ORB_pattern[i*4+2]*fsin+ORB_pattern[i*4+3]*fcos);
 	
 			if(u_p >= image.cols || u_p < 0 || u_q >= image.cols || u_q < 0 \
 			|| v_p >= image.rows || v_p < 0 || v_q >= image.rows || v_q < 0){
-				d[i] = 0;  // if kp goes outside, set d.clear()
-				continue;
+				d.clear();  // if kp goes outside, set d.clear()
+				break;
 			}
-			if(image.at<uchar>(u_p, v_p) > image.at<uchar>(u_q,v_q))
+			if(image.at<uchar>(v_p, u_p) > image.at<uchar>(v_q,u_q))
 				d[i] = 1;
 	    // END YOUR CODE HERE
         }
@@ -456,13 +465,42 @@ void computeORBDesc(const cv::Mat &image, vector<cv::KeyPoint> &keypoints, vecto
 }
 
 // brute-force matching
+inline int hamming_cal(const DescType &d1, const DescType &d2){
+	int hamming_val = 0;
+	for(int i = 0; i < 256; i++){
+		hamming_val += d1[i] == d2[i]?0:1;
+	}
+return hamming_val;
+}
+
 void bfMatch(const vector<DescType> &desc1, const vector<DescType> &desc2, vector<cv::DMatch> &matches) {
     int d_max = 50;
 
     // START YOUR CODE HERE (~12 lines)
     // find matches between desc1 and desc2. 
     // END YOUR CODE HERE
-
+	int queryId = -1;	
+	for (auto &d1:desc1){
+		int hamming_dis = 0, min_dis = 256;
+		cv::DMatch m_tmp;
+		queryId++;
+		if(d1.empty())
+			continue;
+		int couts = -1, trainId = -1;
+		for(auto &d2:desc2){
+			couts++;
+			if(d2.empty())
+				continue;
+			hamming_dis = hamming_cal(d1, d2);
+			if(min_dis > hamming_dis){
+				min_dis = hamming_dis;
+				trainId = couts;	
+			}
+		}
+		m_tmp.queryIdx = queryId;   m_tmp.trainIdx = trainId;   m_tmp.distance = min_dis;
+		if(m_tmp.distance < d_max)
+			matches.push_back(m_tmp);
+	}
     for (auto &m: matches) {
         cout << m.queryIdx << ", " << m.trainIdx << ", " << m.distance << endl;
     }
