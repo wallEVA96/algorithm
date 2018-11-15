@@ -9,7 +9,7 @@
 
 using namespace Eigen;
 
-#include <sophus/so3.hpp>
+#include <sophus/so3.h>
 
 #include <iostream>
 
@@ -29,7 +29,14 @@ int main(int argc, char **argv) {
 
     // SVD and fix sigular values
     // START YOUR CODE HERE
-
+	JacobiSVD<MatrixXd> svd(E,ComputeThinU | ComputeThinV);
+	Matrix3d U = svd.matrixU();
+	Matrix3d V = svd.matrixV();
+	Vector3d d = svd.singularValues();
+	cout << " ===="<< endl << d << endl;
+	//cout << " ++++"<< endl << d.matrix() * U << endl;
+	cout << " ===="<< endl << d.matrix() << endl;
+	cout << " ====" << endl <<U.inverse() * E * V.transpose().inverse() << endl;
     // END YOUR CODE HERE
 
     // set t1, t2, R1, R2 
@@ -43,8 +50,8 @@ int main(int argc, char **argv) {
 
     cout << "R1 = " << R1 << endl;
     cout << "R2 = " << R2 << endl;
-    cout << "t1 = " << Sophus::SO3d::vee(t_wedge1) << endl;
-    cout << "t2 = " << Sophus::SO3d::vee(t_wedge2) << endl;
+    cout << "t1 = " << Sophus::SO3::vee(t_wedge1) << endl;
+    cout << "t2 = " << Sophus::SO3::vee(t_wedge2) << endl;
 
     // check t^R=E up to scale
     Matrix3d tR = t_wedge1 * R1;
