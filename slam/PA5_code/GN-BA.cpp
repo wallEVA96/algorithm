@@ -20,8 +20,8 @@ typedef vector<Vector3d, Eigen::aligned_allocator<Vector3d>> VecVector3d;
 typedef vector<Vector2d, Eigen::aligned_allocator<Vector3d>> VecVector2d;
 typedef Matrix<double, 6, 1> Vector6d;
 
-string p3d_file = "./p3d.txt";
-string p2d_file = "./p2d.txt";
+string p3d_file = "../p3d.txt";
+string p2d_file = "../p2d.txt";
 
 int main(int argc, char **argv) {
 
@@ -33,9 +33,26 @@ int main(int argc, char **argv) {
 
     // load points in to p3d and p2d 
     // START YOUR CODE HERE
-
+	string p2_data, p3_data;
+	ifstream if_p2(p2d_file.c_str());
+	ifstream if_p3(p3d_file.c_str());
+ 	if( !if_p3.is_open() || !if_p2.is_open() ){
+		cout << " p3d.txt or p2d.txt no found!" << endl;
+		return -1;
+	}
+	while( getline(if_p2, p2_data) && getline(if_p3, p3_data) ){
+		Vector3d  p3_coor;
+		Vector2d  p2_coor;
+		istringstream p2_iss(p2_data);
+		istringstream p3_iss(p3_data);
+		p2_iss >> p2_coor[0] >> p2_coor[1];
+		p3_iss >> p3_coor[0] >> p3_coor[1] >> p3_coor[2];
+		p3d.push_back(p3_coor);
+		p2d.push_back(p2_coor);
+	}
     // END YOUR CODE HERE
     assert(p3d.size() == p2d.size());
+	cout << p3d.size() << " --- " << p2d.size() << endl;
 
     int iterations = 100;
     double cost = 0, lastCost = 0;
@@ -64,7 +81,7 @@ int main(int argc, char **argv) {
 	    // END YOUR CODE HERE
 
             H += J.transpose() * J;
-            b += -J.transpose() * e;
+        //  b += -J.transpose() * e;
         }
 
 	// solve dx 
@@ -74,7 +91,7 @@ int main(int argc, char **argv) {
 
         // END YOUR CODE HERE
 
-        if (isnan(dx[0])) {
+        if (std::isnan(dx[0])) {
             cout << "result is nan!" << endl;
             break;
         }

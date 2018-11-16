@@ -51,7 +51,6 @@ int main(int argc, char **argv) {
     Matrix3d R2;
 
 	t_wedge1 = U * Rz1.matrix() * d * U.transpose();
-    cout << "t1 = " << endl << t_wedge1 << endl;
 	t_wedge2 = U * Rz2.matrix() * d * U.transpose();
 	R1 = U * Rz1.matrix().transpose() * V.transpose();
 	R2 = U * Rz2.matrix().transpose() * V.transpose();
