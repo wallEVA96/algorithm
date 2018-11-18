@@ -52,43 +52,52 @@ int main(int argc, char **argv) {
 	}
     // END YOUR CODE HERE
     assert(p3d.size() == p2d.size());
-	cout << p3d.size() << " --- " << p2d.size() << endl;
+	cout << "p3d size:" << p3d.size() << " p2d size:" << p2d.size() << endl;
 
     int iterations = 100;
     double cost = 0, lastCost = 0;
     int nPoints = p3d.size();
     cout << "points: " << nPoints << endl;
 
-    Sophus::SE3 T_esti; // estimated pose
-
-    for (int iter = 0; iter < iterations; iter++) {
+    Sophus::SE3 T_esti(Matrix3d::Identity(), Vector3d::Zero()); // estimated pose
+	for (int iter = 0; iter < iterations; iter++) {
 
         Matrix<double, 6, 6> H = Matrix<double, 6, 6>::Zero();
         Vector6d b = Vector6d::Zero();
-
+		Vector2d err;
         cost = 0;
         // compute cost
         for (int i = 0; i < nPoints; i++) {
-            // compute cost for p3d[I] and p2d[I]
-            // START YOUR CODE HERE 
+        // compute cost for p3d[I] and p2d[I]	
 
+			Vector3d TP =  T_esti * p3d[i];
+			Vector3d pix_coor = K * TP;
+			err[0] = p2d[i][0] - pix_coor[0]/pix_coor[2];
+			err[1] = p2d[i][1] - pix_coor[1]/pix_coor[2];
+			cout << err << endl;
 	    // END YOUR CODE HERE
 
 	    // compute jacobian
-            Matrix<double, 2, 6> J;
-            // START YOUR CODE HERE 
-
-	    // END YOUR CODE HERE
+        	Matrix<double, 2, 6> J;
+        // START YOUR CODE HERE
+			double x = TP[0], y = TP[1], z = TP[2];
+			double x2 = x*x, y2 = y*y, z2 = z*z;
+			J << -fx/z, 0, fx*x/z2, fx*x*y/z2, -fx-fx * x2/z2, fx*y/z,
+			  	 0, -fy/z, fy*y/z2, fy+fy*y2/z2, -fy*x*y/z2, -fy*x/z;
+			cout << J << endl;
+		// END YOUR CODE HERE
 
             H += J.transpose() * J;
-        //  b += -J.transpose() * e;
+          	b += -J.transpose() * err;
+
+			cost += err.transpose() * err;
         }
 
 	// solve dx 
         Vector6d dx;
 
         // START YOUR CODE HERE 
-
+		dx = H.ldlt().solve(b);
         // END YOUR CODE HERE
 
         if (std::isnan(dx[0])) {
@@ -104,7 +113,7 @@ int main(int argc, char **argv) {
 
         // update your estimation
         // START YOUR CODE HERE 
-
+		T_esti = Sophus::SE3::exp(dx) * T_esti;
         // END YOUR CODE HERE
         
         lastCost = cost;
