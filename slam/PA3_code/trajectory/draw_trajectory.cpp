@@ -9,7 +9,7 @@
 using namespace std;
 
 // path to trajectory file
-string trajectory_file = "/home/walleva/algorithm/slam/PA3_code/trajectory/trajectory.txt";
+string trajectory_file = "..//trajectory.txt";
 
 // function for plotting trajectory, don't edit this code
 // start point is red and end point is blue
