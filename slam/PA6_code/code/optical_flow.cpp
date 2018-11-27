@@ -198,7 +198,7 @@ void OpticalFlowSingleLevel(
             Eigen::Vector2d update;
             // TODO END YOUR CODE HERE
 
-            if (isnan(update[0])) {
+            if (std::isnan(update[0])) {
                 // sometimes occurred when we have a black or white patch and H is irreversible
                 cout << "update is nan" << endl;
                 succ = false;
