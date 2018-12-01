@@ -8,8 +8,8 @@ using namespace cv;
 
 // this program shows how to use optical flow
 
-string file_1 = "./1.png";  // first image
-string file_2 = "./2.png";  // second image
+string file_1 = "../1.png";  // first image
+string file_2 = "../2.png";  // second image
 
 // TODO implement this funciton
 /**
@@ -85,12 +85,12 @@ int main(int argc, char **argv) {
     // first use single level LK in the validation picture
     vector<KeyPoint> kp2_single;
     vector<bool> success_single;
-    OpticalFlowSingleLevel(img1, img2, kp1, kp2_single, success_single);
+    OpticalFlowSingleLevel(img1, img2, kp1, kp2_single, success_single, true);
 
     // then test multi-level LK
     vector<KeyPoint> kp2_multi;
     vector<bool> success_multi;
-    OpticalFlowMultiLevel(img1, img2, kp1, kp2_multi, success_multi);
+    OpticalFlowMultiLevel(img1, img2, kp1, kp2_multi, success_multi,true);
 
     // use opencv's flow for validation
     vector<Point2f> pt1, pt2;
@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
     // plot the differences of those functions
     Mat img2_single;
     cv::cvtColor(img2, img2_single, CV_GRAY2BGR);
-    for (int i = 0; i < kp2_single.size(); i++) {
+    for (unsigned int i = 0; i < kp2_single.size(); i++) {
         if (success_single[i]) {
             cv::circle(img2_single, kp2_single[i].pt, 2, cv::Scalar(0, 250, 0), 2);
             cv::line(img2_single, kp1[i].pt, kp2_single[i].pt, cv::Scalar(0, 250, 0));
@@ -111,7 +111,7 @@ int main(int argc, char **argv) {
 
     Mat img2_multi;
     cv::cvtColor(img2, img2_multi, CV_GRAY2BGR);
-    for (int i = 0; i < kp2_multi.size(); i++) {
+    for (unsigned int i = 0; i < kp2_multi.size(); i++) {
         if (success_multi[i]) {
             cv::circle(img2_multi, kp2_multi[i].pt, 2, cv::Scalar(0, 250, 0), 2);
             cv::line(img2_multi, kp1[i].pt, kp2_multi[i].pt, cv::Scalar(0, 250, 0));
@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
 
     Mat img2_CV;
     cv::cvtColor(img2, img2_CV, CV_GRAY2BGR);
-    for (int i = 0; i < pt2.size(); i++) {
+    for (unsigned int i = 0; i < pt2.size(); i++) {
         if (status[i]) {
             cv::circle(img2_CV, pt2[i], 2, cv::Scalar(0, 250, 0), 2);
             cv::line(img2_CV, pt1[i], pt2[i], cv::Scalar(0, 250, 0));
@@ -179,23 +179,32 @@ void OpticalFlowSingleLevel(
                     // TODO START YOUR CODE HERE (~8 lines)
                     double error = 0;
                     Eigen::Vector2d J;  // Jacobian
+					float u1 = float(kp.pt.x + x), v1 = float(kp.pt.y + y);
+					float u2 = float(u1 + dx), v2 = float(v1 + dy);
                     if (inverse == false) {
                         // Forward Jacobian
-                    } else {
+ 						J.x() = double(GetPixelValue(img2, u2 + 1, v2) - GetPixelValue(img2, u2 + 1, v2))/2;
+ 						J.y() = double(GetPixelValue(img2, u2, v2 + 1) - GetPixelValue(img2, u2, v2 - 1))/2;
+                    	error = double(GetPixelValue(img2, u2, v2) - GetPixelValue(img1, u1, v1));
+					} else {
                         // Inverse Jacobian
                         // NOTE this J does not change when dx, dy is updated, so we can store it and only compute error
+						J.y() = double(GetPixelValue(img1, u1, v1 + 1) - GetPixelValue(img1, u1, v1 - 1))/2;
+						J.x() = double(GetPixelValue(img1, u1 + 1, v1) - GetPixelValue(img1, u1 - 1, v1))/2;
+                    	error = double(GetPixelValue(img2, u2, v2) - GetPixelValue(img1, u1, v1));
                     }
 
                     // compute H, b and set cost;
-                    H;
-                    b;
-                    cost;
-                    // TODO END YOUR CODE HERE
+                    H += J * J.transpose();
+                    b += -J * error;
+					cost += error * error;
+					// TODO END YOUR CODE HERE
                 }
 
             // compute update
             // TODO START YOUR CODE HERE (~1 lines)
             Eigen::Vector2d update;
+			update = H.ldlt().solve(b);
             // TODO END YOUR CODE HERE
 
             if (std::isnan(update[0])) {
@@ -246,13 +255,40 @@ void OpticalFlowMultiLevel(
     vector<Mat> pyr1, pyr2; // image pyramids
     // TODO START YOUR CODE HERE (~8 lines)
     for (int i = 0; i < pyramids; i++) {
-
-    }
+		Mat img1_resize, img2_resize;
+		resize(img1, img1_resize, Size(img1.cols * scales[i], img1.rows * scales[i]));
+		resize(img2, img2_resize, Size(img2.cols * scales[i], img2.rows * scales[i]));
+    	pyr1.push_back(img1_resize);
+    	pyr2.push_back(img2_resize);
+	}
     // TODO END YOUR CODE HERE
 
     // coarse-to-fine LK tracking in pyramids
     // TODO START YOUR CODE HERE
+	vector<KeyPoint> multi_kp2_cur; 
+	vector<KeyPoint> multi_kp2_bef;
+	vector<bool> multi_succ;
 
+	for(int i = (pyramids - 1); i >= 0; i--){
+		vector<KeyPoint> multi_kp1;
+		multi_succ.clear();
+		for(unsigned int k = 0; k < kp1.size(); k++){
+			KeyPoint kp1_buf = kp1[k];
+			kp1_buf.pt *= scales[i];
+			multi_kp1.push_back(kp1_buf);
+
+			if( i < pyramids -1 ){
+				KeyPoint kp2_buf = multi_kp2_bef[k];
+				kp2_buf.pt /= pyramid_scale;
+				multi_kp2_cur.push_back(kp2_buf);	
+			}
+		}
+		OpticalFlowSingleLevel(pyr1[i], pyr2[i], multi_kp1, multi_kp2_cur, multi_succ, inverse);
+	multi_kp2_bef.clear(); ///!!!!!!!
+	multi_kp2_bef.swap(multi_kp2_cur);
+	}
+	kp2 = multi_kp2_bef;
+	success = multi_succ;
     // TODO END YOUR CODE HERE
     // don't forget to set the results into kp2
 }
