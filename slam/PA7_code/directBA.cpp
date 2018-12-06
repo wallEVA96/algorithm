@@ -27,8 +27,8 @@ typedef vector<Sophus::SE3, Eigen::aligned_allocator<Sophus::SE3>> VecSE3;
 typedef vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d>> VecVec3d;
 
 // global variables
-string pose_file = "./poses.txt";
-string points_file = "./points.txt";
+string pose_file = "../poses.txt";
+string points_file = "../points.txt";
 
 // intrinsics
 float fx = 277.34;
@@ -147,7 +147,7 @@ int main(int argc, char **argv) {
 
     // read images
     vector<cv::Mat> images;
-    boost::format fmt("./%d.png");
+    boost::format fmt("../%d.png");
     for (int i = 0; i < 7; i++) {
         images.push_back(cv::imread((fmt % i).str(), 0));
     }
@@ -163,6 +163,31 @@ int main(int argc, char **argv) {
 
     // TODO add vertices, edges into the graph optimizer
     // START YOUR CODE HERE
+    for(int i = 0; i < points.size(); i++) {
+	VertexSBAPointXYZ* vertexPw = new VertexSBAPointXYZ();
+	vertexPw->setEstimate(points[i]);
+	vertexPw->setId(i);
+	vertexPw->setMarginalized(true);
+	optimizer.addVertex(vertexPw);
+    }
+    for(int j = 0; j < poses.size(); j++) {
+	VertexSophus* vertexTcw = new VertexSophus();
+	vertexTcw->setEstimate(poses[j]);
+	vertexTcw->setId(j + points.size());
+	optimizer.addVertex(vertexTcw);
+    }
+
+    for(int c = 0; c < poses.size(); c++) 
+	for(int p = 0; p < points.size(); p++) {
+	    EdgeDirectProjection* edge = new EdgeDirectProjection(color[p],images[c]);
+	    edge->setVertex(0,dynamic_cast<VertexSBAPointXYZ*>(optimizer.vertex(p)));
+	    edge->setVertex(1,dynamic_cast<VertexSophus*>(optimizer.vertex(c + points.size())));
+	    edge->setInformation(Matrix<double,16,16>::Identity());
+	    RobustKernelHuber* rk = new RobustKernelHuber;
+	    rk->setDelta(1.0);
+	    edge->setRobustKernel(rk);
+	    optimizer.addEdge(edge);	    
+	}
 
     // END YOUR CODE HERE
 
